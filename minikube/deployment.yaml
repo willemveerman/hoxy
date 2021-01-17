@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-tester
+  labels:
+    app: log-tester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-tester
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: log-tester
+    spec:
+      containers:
+      - name: tls-proxy
+        image: envoyproxy/envoy-alpine:v1.17.0
+        args: ["-c", "/envoy.yaml"]
+        ports:
+          - containerPort: 10000
+            name: tls
+        volumeMounts:
+          - name: envoy-config
+            mountPath: /envoy.yaml
+            subPath: envoy.yaml
+          - name: cert
+            mountPath: /secrets
+      - name: log-tester
+        image: quay.io/ukhomeofficedigital/log-tester:latest
+        ports:
+          - containerPort: 3000
+            name: http
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: envoy
+        - name: cert
+          secret:
+            secretName: envoy-cert

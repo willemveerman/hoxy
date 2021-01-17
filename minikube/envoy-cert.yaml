@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: envoy-cert
+  namespace: default
+spec:
+  secretName: envoy-cert
+  issuerRef:
+    name: selfsigned
+    kind: Issuer
+  commonName: "*.com"
+  dnsNames:
+  - "*.com"
